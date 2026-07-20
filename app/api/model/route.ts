@@ -13,13 +13,6 @@ interface Body {
   json?: boolean;
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-// Transient: model overloaded / rate-limited — retry, then fall through.
-const RETRYABLE = /(\b429\b|\b503\b|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)/i;
-// Model gone (deprecated / no access) — skip straight to the next model.
-const NOT_FOUND = /(\b404\b|NOT_FOUND|no longer available)/i;
-
 // Build the fallback chain: the configured/primary model first, then lighter
 // alternates. If the primary is overloaded (503) or retired (404), the request
 // falls through automatically instead of failing the turn.
@@ -65,6 +58,10 @@ export async function POST(req: Request) {
     // Disable "thinking" so the prototype's small token budgets aren't
     // consumed by reasoning tokens (keeps replies snappy and non-empty).
     thinkingConfig: { thinkingBudget: 0 },
+    // Bound each call and disable the SDK's default 5-attempt 503 backoff, so an
+    // overloaded model fails fast and we fall through to the next one in ~1s
+    // instead of the client hanging for 30s+.
+    httpOptions: { timeout: 12000, retryOptions: { attempts: 1 } },
     // JSON mode and Google Search grounding are mutually exclusive.
     ...(wantSearch
       ? { tools: [{ googleSearch: {} }] }
@@ -74,21 +71,14 @@ export async function POST(req: Request) {
   };
 
   let lastError = "model_error";
+  // One attempt per model; any error (503 overloaded / 404 retired / timeout)
+  // falls through to the next model in the chain.
   for (const model of modelChain()) {
-    // Up to 2 attempts per model, short backoff between, for transient 503/429.
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const res = await ai.models.generateContent({ model, contents, config });
-        return Response.json({ text: res.text ?? "", model });
-      } catch (err) {
-        lastError = err instanceof Error ? err.message : String(err);
-        if (NOT_FOUND.test(lastError)) break; // model gone → next model
-        if (RETRYABLE.test(lastError) && attempt === 0) {
-          await sleep(600);
-          continue; // retry same model once
-        }
-        break; // non-retryable or exhausted → next model
-      }
+    try {
+      const res = await ai.models.generateContent({ model, contents, config });
+      return Response.json({ text: res.text ?? "", model });
+    } catch (err) {
+      lastError = err instanceof Error ? err.message : String(err);
     }
   }
   // Every model failed → 502 so the client falls back to the scripted committee.
