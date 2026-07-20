@@ -30,7 +30,9 @@ export async function POST(req: Request) {
   }
 
   const { system, messages = [], maxTokens = 1024, useSearch, json } = body;
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  // Default to the rolling "latest flash" alias so the app doesn't 404 when a
+  // pinned model is retired. Override with GEMINI_MODEL to pin a version.
+  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
   const wantSearch =
     typeof useSearch === "boolean"
       ? useSearch

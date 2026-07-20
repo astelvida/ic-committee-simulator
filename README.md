@@ -43,7 +43,7 @@ partners and a real judged verdict.
 | Variable | Default | Notes |
 |---|---|---|
 | `GEMINI_API_KEY` | — | Server-side only. Without it, the scripted fallback runs. |
-| `GEMINI_MODEL` | `gemini-2.5-flash` | e.g. `gemini-2.5-pro` for stronger reasoning. |
+| `GEMINI_MODEL` | `gemini-flash-latest` | Rolling alias to the current flash model. Pin e.g. `gemini-3.5-flash` / `gemini-3.5-pro` if preferred. |
 | `IC_USE_SEARCH` | `false` | `true` grounds turns with Google Search (relaxes the memo-only guarantee). |
 
 ## Architecture
