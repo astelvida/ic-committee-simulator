@@ -1,0 +1,181 @@
+/* ============================================================================
+   Adversarial IC — global design tokens & primitives.
+   Ported verbatim from the design concept (Adversarial IC.dc.html <helmet>).
+   Fonts (--disp / --sans / --mono) are provided by next/font in layout.tsx.
+   ========================================================================== */
+
+:root {
+  --bg: #f4f0e6;
+  --panel: #ffffff;
+  --panel2: #efeadd;
+  --line: #e4decf;
+  --line2: #d0c8b5;
+  --tx: #181510;
+  --muted: #6c665a;
+  --faint: #9a9182;
+  --acc: #5b4be0;
+  --acc-d: #4436b8;
+  --sk: #e23b2c;
+  --op: #0e9e6e;
+  --rg: #c67a0e;
+  --ch: #7a3fd4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  max-width: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--line2) 55%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+  color: var(--tx);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--acc);
+  text-decoration: none;
+}
+a:hover {
+  opacity: 0.8;
+}
+
+pre {
+  font-family: var(--mono);
+  margin: 0;
+}
+
+textarea,
+input,
+button {
+  font-family: var(--sans);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--acc) 40%, transparent);
+}
+
+/* --- keyframes ---------------------------------------------------------- */
+@keyframes caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes barin {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px var(--gc),
+      0 0 22px -6px var(--gc);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px var(--gc),
+      0 0 34px -4px var(--gc);
+  }
+}
+@keyframes livedot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes drawring {
+  from {
+    stroke-dashoffset: 327;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- scrollbar ---------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line2);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- responsive helpers (referenced by the ported markup) --------------- */
+@media (max-width: 720px) {
+  .tbl-hide {
+    display: none !important;
+  }
+  .memo-cols {
+    grid-template-columns: 1fr !important;
+  }
+}
