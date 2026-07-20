@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F0E6;--panel:#FFFFFF;--panel2:#EFEADD;--line:#E4DECF;--line2:#D0C8B5;--tx:#181510;--muted:#6C665A;--faint:#9A9182;--acc:#5B4BE0;--acc-d:#4436B8;--sk:#E23B2C;--op:#0E9E6E;--rg:#C67A0E;--ch:#7A3FD4;--disp:"Space Grotesk",sans-serif;--sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background-color:var(--bg);background-image:radial-gradient(color-mix(in srgb,var(--line2) 55%,transparent) 1px, transparent 1px);background-size:24px 24px;color:var(--tx);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+a{color:var(--acc);text-decoration:none;}a:hover{opacity:.8;}
+pre{font-family:var(--mono);margin:0;}
+textarea,input{font-family:var(--sans);}
+::selection{background:color-mix(in srgb,var(--acc) 40%,transparent);}
+@keyframes caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes dot{0%,80%,100%{opacity:.15}40%{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes barin{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 1px var(--gc), 0 0 22px -6px var(--gc)}50%{box-shadow:0 0 0 1px var(--gc), 0 0 34px -4px var(--gc)}}
+@keyframes livedot{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes drawring{from{stroke-dashoffset:327}to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}::-webkit-scrollbar-track{background:transparent}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<!-- ============================ LANDING ============================ -->
+<sc-if value="{{ scrLanding }}" hint-placeholder-val="{{ true }}">
+<div style="width:100%;background:radial-gradient(1100px 500px at 78% -8%, color-mix(in srgb,var(--acc) 15%,transparent), transparent 70%)">
+  <div style="max-width:1200px;margin:0 auto;padding:26px 26px 70px;width:100%">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--acc);font-weight:600">◆ ic://committee</div>
+      <div style="font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--faint)">v3 · claude + gemini ready · no login</div>
+    </div>
+
+    <sc-if value="{{ hasSaved }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--acc);border-radius:13px;padding:14px 18px;box-shadow:0 16px 44px -24px var(--acc);animation:rise .3s">
+      <div style="display:flex;align-items:center;gap:13px;min-width:0">
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--acc);animation:livedot 1.6s infinite;flex-shrink:0"></span>
+        <div style="min-width:0">
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)">Session in progress</div>
+          <div style="font-weight:600;font-size:15px;margin-top:1px">{{ savedLabel }} <span style="color:var(--faint);font-weight:400;font-family:var(--mono);font-size:12px">· {{ savedSub }}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button style="background:var(--acc);color:#FFFFFF;border:none;padding:9px 18px;border-radius:9px;font-size:13.5px;font-weight:700;font-family:var(--sans);cursor:pointer" style-hover="opacity:.9" onClick="{{ resumeSession }}">Resume →</button>
+        <button style="background:transparent;color:var(--muted);border:1px solid var(--line2);padding:9px 15px;border-radius:9px;font-size:13.5px;font-weight:600;font-family:var(--sans);cursor:pointer" style-hover="border-color:var(--sk);color:var(--sk)" onClick="{{ discardSession }}">Discard</button>
+      </div>
+    </div>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:40px;align-items:center;margin-top:40px">
+      <div>
+        <div style="font-family:var(--mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:18px">The investment committee, simulated</div>
+        <h1 style="font-family:var(--disp);font-size:clamp(48px,7.2vw,88px);font-weight:700;line-height:.94;letter-spacing:-.03em">Take your call<br><span style="color:var(--acc)">to the table.</span></h1>
+        <p style="font-size:19px;color:var(--muted);max-width:52ch;margin-top:22px;line-height:1.55">You're the analyst. You've done the work and you're recommending the deal. Now four partners pressure-test your investment case — live, in character, one hard question at a time. <span style="color:var(--tx)">No fabricated numbers. Just the thesis, under load.</span></p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px">
+          <a href="#deals" style="background:var(--acc);color:#FFFFFF;padding:14px 24px;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--sans)">Open a deal ↓</a>
+          <span style="border:1px solid var(--line2);color:var(--tx);padding:14px 22px;border-radius:10px;font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer" style-hover="border-color:var(--acc)" onClick="{{ openCustom }}">Evaluate your own company +</span>
+        </div>
+      </div>
+
+      <!-- terminal window with committee -->
+      <div style="border:1px solid var(--line2);border-radius:14px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px -40px #000">
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--panel2)">
+          <span style="width:11px;height:11px;border-radius:50%;background:#FF5F57"></span>
+          <span style="width:11px;height:11px;border-radius:50%;background:#FEBC2E"></span>
+          <span style="width:11px;height:11px;border-radius:50%;background:#28C840"></span>
+          <span style="font-family:var(--mono);font-size:12px;color:var(--faint);margin-left:8px">ic://committee/session — 4 partners</span>
+        </div>
+        <div style="padding:22px 20px">
+          <div style="font-family:var(--mono);font-size:12.5px;color:var(--op);margin-bottom:18px">❯ convening the investment committee<span style="animation:caret 1s step-end infinite">▋</span></div>
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <sc-for list="{{ heroSeats }}" as="h" hint-placeholder-count="4">
+              <div style="text-align:center;flex:1;min-width:76px">
+                <pre style="font-size:13px;line-height:1.15;color:{{ h.color }};white-space:pre">{{ h.face }}</pre>
+                <div style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:{{ h.color }};font-weight:700;margin-top:6px">{{ h.label }}</div>
+                <div style="font-family:var(--mono);font-size:8.5px;color:var(--faint);margin-top:2px">{{ h.title }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--faint)">
+            <span>status: <span style="color:var(--op)">ready</span></span>
+            <span>awaiting analyst ▸</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEAL TABLE -->
+<div id="deals" style="max-width:1200px;margin:0 auto;padding:34px 26px 24px;width:100%;scroll-margin-top:18px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+    <h2 style="font-family:var(--disp);font-size:clamp(26px,3.4vw,38px);font-weight:600;letter-spacing:-.02em">Pick a deal to evaluate</h2>
+    <span style="font-family:var(--mono);font-size:12px;color:var(--faint)">// pipeline · sorted by SSI</span>
+  </div>
+
+  <div style="margin-top:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)">
+    <div style="display:grid;grid-template-columns:60px minmax(0,2.4fr) 1.1fr .8fr .8fr 108px;gap:12px;padding:12px 20px;background:var(--panel2);color:var(--faint);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--line)">
+      <span>SSI</span><span>Company</span><span class="tbl-hide">Sector</span><span class="tbl-hide">Stage</span><span>Priority</span><span style="text-align:right">Action</span>
+    </div>
+    <sc-for list="{{ deals }}" as="d" hint-placeholder-count="3">
+      <div style="display:grid;grid-template-columns:60px minmax(0,2.4fr) 1.1fr .8fr .8fr 108px;gap:12px;padding:16px 20px;align-items:center;border-top:1px solid var(--line);cursor:pointer;transition:background .12s" style-hover="background:var(--panel2)" onClick="{{ d.onChoose }}">
+        <div style="width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;font-weight:700;color:#FFFFFF;background:{{ d.ssiColor }}">{{ d.ssi }}</div>
+        <div style="min-width:0">
+          <div style="font-family:var(--disp);font-size:20px;font-weight:600;line-height:1.05">{{ d.name }}</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.4;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.oneLiner }}</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:12.5px;color:var(--muted)" class="tbl-hide">{{ d.sector }}</div>
+        <div style="font-family:var(--mono);font-size:12.5px;color:var(--muted)" class="tbl-hide">{{ d.stage }}</div>
+        <div><span style="{{ d.prioStyle }}">{{ d.priority }}</span></div>
+        <div style="text-align:right;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--acc)">Evaluate →</div>
+      </div>
+    </sc-for>
+    <div style="border-top:1px solid var(--line);padding:15px 20px;background:var(--panel2)">
+      <sc-if value="{{ showCustom }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:rise .25s">
+          <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px">New evaluation — the committee convenes on your thesis</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">
+            <input value="{{ cf.name }}" onInput="{{ cfName }}" placeholder="Company name" style="{{ inpStyle }}">
+            <input value="{{ cf.sector }}" onInput="{{ cfSector }}" placeholder="Sector (e.g. Fintech AI)" style="{{ inpStyle }}">
+            <input value="{{ cf.stage }}" onInput="{{ cfStage }}" placeholder="Stage / round (e.g. Seed · €5M)" style="{{ inpStyle }}">
+          </div>
+          <textarea value="{{ cf.oneLiner }}" onInput="{{ cfOne }}" placeholder="One line: what does it do, and why is this the investment?" rows="2" style="{{ inpStyle }};width:100%;margin-top:10px;resize:none"></textarea>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button style="{{ cfBtnStyle }}" onClick="{{ submitCustom }}">Build the memo →</button>
+            <button style="background:transparent;border:1px solid var(--line2);color:var(--muted);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer" onClick="{{ openCustom }}">Cancel</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ hideCustom }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onClick="{{ openCustom }}">
+          <span style="font-family:var(--mono);font-size:18px;color:var(--acc);font-weight:700">+</span>
+          <span style="font-size:14.5px;font-weight:600;color:var(--tx)">Evaluate your own company</span>
+          <span style="font-size:13px;color:var(--faint)">— paste a deal and take it to the committee</span>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- committee dossier -->
+  <div style="margin-top:52px">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+      <h2 style="font-family:var(--disp);font-size:clamp(22px,3vw,30px);font-weight:600;letter-spacing:-.02em">The committee</h2>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--faint)">// four partners, four mandates</span>
+    </div>
+    <p style="font-size:15px;color:var(--muted);max-width:64ch;margin-bottom:22px">Each partner owns a distinct part of the diligence. They disagree on purpose — clearing all four is what a real IC decision requires.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <sc-for list="{{ committee }}" as="m" hint-placeholder-count="4">
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0 auto 0 0;width:3px;background:{{ m.color }}"></div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <pre style="font-size:13px;line-height:1.15;color:{{ m.color }};white-space:pre;flex-shrink:0">{{ m.face }}</pre>
+            <div style="min-width:0">
+              <div style="font-family:var(--disp);font-size:21px;font-weight:700;line-height:1">{{ m.name }}</div>
+              <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:{{ m.color }};font-weight:600;margin-top:5px">{{ m.title }}</div>
+            </div>
+          </div>
+          <div style="font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:13px">{{ m.bio }}</div>
+          <div style="margin-top:13px;padding-top:12px;border-top:1px solid var(--line)">
+            <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px">Evaluates</div>
+            <sc-for list="{{ m.evaluates }}" as="e" hint-placeholder-count="3">
+              <div style="font-size:12.5px;color:var(--tx);line-height:1.45;padding:2px 0"><span style="color:{{ m.color }};font-family:var(--mono)">▸ </span>{{ e }}</div>
+            </sc-for>
+          </div>
+          <div style="margin-top:11px;font-family:var(--mono);font-size:11px;color:var(--faint)">scores: <span style="color:var(--muted)">{{ m.scores }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="height:40px"></div>
+</div>
+</sc-if>
+
+<!-- ============================ MEMO ============================ -->
+<sc-if value="{{ scrBrief }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:1200px;margin:0 auto;padding:24px 24px 96px;width:100%">
+  <div style="font-family:var(--mono);font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:16px" onClick="{{ backLanding }}">← pipeline</div>
+  <sc-if value="{{ tipShow }}" hint-placeholder-val="{{ false }}">
+    <div style="{{ tipStyle }}">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55)">{{ tipSub }}</div>
+      <div style="font-family:var(--disp);font-size:17px;font-weight:700;line-height:1.1;margin-top:2px">{{ tipVal }}</div>
+      <div style="font-size:11.5px;color:rgba(255,255,255,.82);margin-top:1px">{{ tipTitle }}</div>
+    </div>
+  </sc-if>
+
+  <!-- HERO BANNER -->
+  <div style="position:relative;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--panel);animation:rise .4s ease-out">
+    <div style="position:absolute;inset:0;background:radial-gradient(680px 340px at 88% -30%, color-mix(in srgb,var(--acc) 26%,transparent), transparent 70%);pointer-events:none"></div>
+    <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:26px;flex-wrap:wrap;padding:30px 34px">
+      <div style="flex:1;min-width:260px">
+        <div style="font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:700">Investment memo · analyst brief</div>
+        <h1 style="font-family:var(--disp);font-size:clamp(40px,6.5vw,72px);font-weight:700;letter-spacing:-.03em;line-height:.94;margin:10px 0 12px">{{ deal.name }}</h1>
+        <div style="font-size:16.5px;color:var(--muted);line-height:1.55;max-width:58ch">{{ deal.tagline }}</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:18px">
+          <sc-for list="{{ deal.pills }}" as="p" hint-placeholder-count="4"><span style="{{ p.style }}">{{ p.label }}</span></sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ deal.hasCharts }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;flex-shrink:0">
+        <div style="position:relative;width:168px;height:168px">
+          <svg viewBox="0 0 120 120" width="168" height="168" style="display:block">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--panel2)" stroke-width="13"></circle>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="{{ deal.ssiColor }}" stroke-width="13" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="{{ deal.viz.gaugeArr }}" style="animation:drawring 1.2s cubic-bezier(.2,.8,.2,1)"></circle>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <div style="font-family:var(--disp);font-size:40px;font-weight:700;color:var(--tx);line-height:1">{{ deal.ssi }}</div>
+            <div style="font-family:var(--mono);font-size:8px;letter-spacing:1px;color:var(--faint);margin-top:2px">SSI / 100</div>
+          </div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:4px">{{ deal.ssiConfidence }} confidence</div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ deal.noCharts }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:var(--disp);font-size:60px;font-weight:700;color:var(--faint);flex-shrink:0">{{ deal.ssi }}</div>
+      </sc-if>
+    </div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));border-top:1px solid var(--line)">
+      <sc-for list="{{ deal.tiles }}" as="t" hint-placeholder-count="4">
+        <div style="padding:15px 20px;border-right:1px solid var(--line)">
+          <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">{{ t.k }}</div>
+          <div style="font-family:var(--disp);font-size:26px;font-weight:700;margin-top:3px">{{ t.v }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- BENTO CHARTS -->
+  <sc-if value="{{ deal.hasCharts }}" hint-placeholder-val="{{ false }}">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:14px">
+    <div style="{{ tileStyle }};animation-delay:.04s">
+      <div style="{{ tileLabel }}">SSI composition</div>
+      <svg viewBox="0 0 200 200" style="width:100%;max-width:300px;display:block;margin:2px auto 0">
+        <polygon points="100,22 178,100 100,178 22,100" fill="none" stroke="var(--line)"></polygon>
+        <polygon points="100,48.5 151.5,100 100,151.5 48.5,100" fill="none" stroke="var(--line)"></polygon>
+        <polygon points="100,74.3 125.7,100 100,125.7 74.3,100" fill="none" stroke="var(--line)"></polygon>
+        <line x1="100" y1="100" x2="100" y2="22" stroke="var(--line)"></line>
+        <line x1="100" y1="100" x2="178" y2="100" stroke="var(--line)"></line>
+        <line x1="100" y1="100" x2="100" y2="178" stroke="var(--line)"></line>
+        <line x1="100" y1="100" x2="22" y2="100" stroke="var(--line)"></line>
+        <polygon points="{{ deal.viz.radarPoly }}" fill="color-mix(in srgb, {{ deal.ssiColor }} 22%, transparent)" stroke="{{ deal.ssiColor }}" stroke-width="2" style="transform-origin:center;animation:pop .6s .2s both"></polygon>
+      </svg>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;margin-top:10px">
+        <sc-for list="{{ deal.ssiBars }}" as="b" hint-placeholder-count="4">
+          <div onMouseEnter="{{ b.onEnter }}" onMouseLeave="{{ tipOff }}" style="display:flex;align-items:center;gap:7px;font-size:11.5px;cursor:default" style-hover="opacity:.68"><span style="width:8px;height:8px;border-radius:2px;background:{{ b.color }};flex-shrink:0"></span><span style="color:var(--muted)">{{ b.label }}</span><span style="margin-left:auto;font-family:var(--mono);font-weight:700">{{ b.valLabel }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="{{ tileStyle }};animation-delay:.1s">
+      <div style="{{ tileLabel }}">Funding to date · £M</div>
+      <sc-for list="{{ deal.fundingBars }}" as="b" hint-placeholder-count="3">
+        <div onMouseEnter="{{ b.onEnter }}" onMouseLeave="{{ tipOff }}" style="margin-bottom:11px;cursor:default">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--muted)">{{ b.label }}</span><span style="font-family:var(--mono);font-weight:700">{{ b.valLabel }}</span></div>
+          <div style="height:10px;background:var(--panel2);border-radius:5px;overflow:hidden"><div style="height:100%;border-radius:5px;transform-origin:left;animation:barin .8s ease-out;width:{{ b.pct }}%;background:{{ b.color }}"></div></div>
+        </div>
+      </sc-for>
+      <div style="margin-top:15px;padding-top:14px;border-top:1px dashed var(--line)">
+        <div style="{{ tileLabel }}">Round timeline</div>
+        <div style="position:relative;height:60px">
+          <div style="position:absolute;left:4%;right:4%;top:24px;height:2px;background:var(--line)"></div>
+          <sc-for list="{{ deal.viz.timeline }}" as="p" hint-placeholder-count="3">
+            <div onMouseEnter="{{ p.onEnter }}" onMouseLeave="{{ tipOff }}" style="position:absolute;top:24px;left:{{ p.left }}%;width:{{ p.size }}px;height:{{ p.size }}px;transform:translate(-50%,-50%);border-radius:50%;background:{{ p.color }};border:2px solid var(--panel);animation:pop .5s both;cursor:default" style-hover="filter:brightness(1.12)"></div>
+            <div style="position:absolute;top:40px;left:{{ p.left }}%;transform:translateX(-50%);font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--muted);white-space:nowrap">{{ p.val }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="{{ tileStyle }};grid-column:1/-1;animation-delay:.16s">
+      <div style="{{ tileLabel }}">This round vs comparable rounds · $M</div>
+      <sc-for list="{{ deal.compBars }}" as="b" hint-placeholder-count="3">
+        <div onMouseEnter="{{ b.onEnter }}" onMouseLeave="{{ tipOff }}" style="display:grid;grid-template-columns:190px minmax(0,1fr) 66px;gap:14px;align-items:center;margin-bottom:11px;cursor:default">
+          <span style="font-size:13px;{{ b.emph }}">{{ b.label }}</span>
+          <div style="height:16px;background:var(--panel2);border-radius:5px;overflow:hidden"><div style="height:100%;border-radius:5px;transform-origin:left;animation:barin .9s ease-out;width:{{ b.pct }}%;background:{{ b.color }}"></div></div>
+          <span style="font-family:var(--mono);font-size:12.5px;font-weight:700;text-align:right">{{ b.valLabel }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- NARRATIVE -->
+  <div style="display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;margin-top:14px" class="memo-cols">
+    <div style="{{ tileStyle }};height:fit-content">
+      <div style="{{ tileLabel }}">Row data</div>
+      <sc-for list="{{ deal.sideRows }}" as="r" hint-placeholder-count="6">
+        <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px"><span style="color:var(--muted)">{{ r.k }}</span><span style="font-weight:600;text-align:right">{{ r.v }}</span></div>
+      </sc-for>
+    </div>
+    <div>
+      <div style="{{ tileLabel }}">Detail · tap to expand ▾</div>
+      <sc-for list="{{ memoSections }}" as="m" hint-placeholder-count="5">
+        <div style="border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:var(--panel)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 17px;cursor:pointer" style-hover="background:var(--panel2)" onClick="{{ m.onToggle }}">
+            <span style="font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--tx);font-weight:600">{{ m.title }}</span>
+            <span style="font-family:var(--mono);font-size:18px;color:{{ m.accent }};font-weight:700;line-height:1">{{ m.sign }}</span>
+          </div>
+          <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}"><div style="padding:2px 17px 15px 16px;margin-left:12px;font-size:13.5px;line-height:1.62;color:var(--tx);white-space:pre-line;border-left:2px solid {{ m.accent }};animation:rise .2s">{{ m.body }}</div></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:20px;padding:20px 24px;border:1px solid var(--line);border-radius:16px;background:var(--panel)">
+    <span style="font-family:var(--mono);font-size:11.5px;color:var(--faint)">{{ deal.readNote }}</span>
+    <button style="background:var(--acc);color:#FFFFFF;border:none;padding:14px 30px;border-radius:11px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer" style-hover="opacity:.9;transform:translateY(-1px)" onClick="{{ enterRoom }}">Enter the committee →</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============================ ROOM ============================ -->
+<sc-if value="{{ scrRoom }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;min-height:100vh">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:6;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:var(--sk);animation:livedot 1.6s infinite"></span><span style="font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--sk);font-weight:600">Live</span></div>
+      <div><div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">IC session · {{ deal.name }}</div><div style="font-weight:600;font-size:14px;margin-top:1px">{{ deal.roomSub }}</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden">
+        <span style="{{ cardTabStyle }}" onClick="{{ setCard }}">Committee</span>
+        <span style="{{ txTabStyle }}" onClick="{{ setTranscript }}">Transcript</span>
+      </div>
+      <span style="font-family:var(--mono);font-size:12px;padding:6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;font-weight:600">⏱ {{ timerStr }}</span>
+      <span style="font-family:var(--mono);font-size:11px;padding:6px 9px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--muted)">turn {{ turnCount }}</span>
+      <span style="{{ ttsBtnStyle }}" onClick="{{ toggleTTS }}">{{ ttsLabel }}</span>
+      <button style="background:var(--tx);color:#FFFFFF;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:var(--sans);cursor:pointer" style-hover="opacity:.88" onClick="{{ callVote }}">Call the vote</button>
+      <span style="font-size:22px;color:var(--faint);cursor:pointer;padding:0 4px" onClick="{{ backLanding }}">×</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:16px;flex-wrap:wrap;padding:18px 22px 0;flex:1;align-content:flex-start;max-width:1240px;margin:0 auto;width:100%">
+    <div style="flex:1 1 480px;min-width:290px;display:flex;flex-direction:column;order:1">
+      <sc-if value="{{ isCard }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <sc-for list="{{ committee }}" as="m" hint-placeholder-count="4">
+          <div style="{{ m.cardStyle }}">
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <pre style="font-size:13.5px;line-height:1.15;color:{{ m.color }};white-space:pre;flex-shrink:0">{{ m.face }}</pre>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                  <div>
+                    <div style="font-family:var(--disp);font-size:19px;font-weight:700;line-height:1.02">{{ m.name }}</div>
+                    <div style="font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-top:3px">{{ m.title }}</div>
+                  </div>
+                  <span style="{{ m.statusStyle }}">{{ m.statusLabel }}</span>
+                </div>
+                <div style="{{ m.activityStyle }}">{{ m.activityText }}<sc-if value="{{ m.live }}" hint-placeholder-val="{{ false }}"><span style="animation:caret 1s step-end infinite">▋</span></sc-if></div>
+              </div>
+            </div><div style="{{ m.msgStyle }}">{{ m.msg }}<sc-if value="{{ m.isStreaming }}" hint-placeholder-val="{{ false }}"><span style="animation:caret 1s step-end infinite;color:{{ m.color }}">▋</span></sc-if></div>
+            
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isTranscript }}" hint-placeholder-val="{{ false }}">
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 20px">
+        <sc-for list="{{ transcriptVM }}" as="t" hint-placeholder-count="4">
+          <div style="padding:14px 0;border-bottom:1px solid var(--line)">
+            <div style="{{ t.whoStyle }}">{{ t.who }}</div>
+            <div style="font-size:14.5px;line-height:1.6;margin-top:6px">{{ t.content }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ emptyTranscript }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:26px 0;font-size:13.5px;color:var(--faint);font-family:var(--mono)">// no exchanges yet — the committee is about to open.</div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ thinking }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;animation:rise .3s">
+          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:9px">
+            <span>⣷ the committee is reasoning</span>
+            <span style="animation:dot 1.4s infinite">●</span><span style="animation:dot 1.4s infinite .2s">●</span><span style="animation:dot 1.4s infinite .4s">●</span>
+          </div>
+          <div style="height:3px;margin-top:10px;border-radius:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);background-size:200% 100%;animation:shimmer 1.3s linear infinite"></div>
+        </div>
+      </sc-if>
+
+      <div style="flex:1"></div>
+
+      <div style="position:sticky;bottom:0;background:var(--bg);padding:14px 0 20px;margin-top:16px">
+        <div style="background:var(--panel);border:1px solid var(--line2);border-radius:13px;padding:13px 15px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)">Your case · turn {{ nextTurnLabel }} · you are the analyst</span>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">{{ charLabel }}</span>
+          </div>
+          <textarea value="{{ input }}" onInput="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="{{ inputPlaceholder }}" rows="3" style="width:100%;border:none;background:transparent;resize:none;font-size:15px;line-height:1.55;color:var(--tx);outline:none;min-height:64px"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:9px;border-top:1px solid var(--line);gap:8px;flex-wrap:wrap">
+            <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+              <span style="{{ helpStyle }}" onClick="{{ draftAnswer }}" title="Draft an evidence-grounded answer (no fabricated numbers)">{{ draftLabel }}</span>
+              <span style="{{ helpStyle }}" onClick="{{ sharpenAnswer }}" title="Tighten what you wrote">{{ sharpenLabel }}</span>
+              <span style="{{ passStyle }}" onClick="{{ pass }}" title="Let the question stand — answering isn't mandatory">↷ Pass</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="{{ micStyle }}" onClick="{{ toggleVoice }}">{{ micLabel }}</span>
+              <button style="{{ sendStyle }}" onClick="{{ submit }}">Respond →</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--faint)">⏎ send · ⇧⏎ newline</span>
+          <sc-if value="{{ voiceErr }}" hint-placeholder-val="{{ false }}"><span style="font-family:var(--mono);font-size:10px;color:var(--sk)">voice input unsupported here — type instead</span></sc-if>
+        </div>
+      </div>
+    </div>
+
+    <!-- memo on the right -->
+    <div style="flex:0 0 340px;min-width:270px;order:2">
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:13px;position:sticky;top:78px;max-height:calc(100vh - 96px);overflow:auto">
+        <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--panel2);border-bottom:1px solid var(--line);z-index:1">
+          <div><div style="font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:600">Investment memo</div><div style="font-family:var(--disp);font-size:18px;font-weight:700;margin-top:2px">{{ deal.name }}</div></div>
+          <div style="font-family:var(--disp);font-size:30px;font-weight:700;color:{{ deal.ssiColor }}">{{ deal.ssi }}</div>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--line)">
+          <sc-for list="{{ deal.railRows }}" as="r" hint-placeholder-count="5">
+            <div style="display:flex;justify-content:space-between;gap:6px;padding:4px 0;font-size:12.5px"><span style="color:var(--muted)">{{ r.k }}</span><span style="font-weight:600;text-align:right">{{ r.v }}</span></div>
+          </sc-for>
+        </div>
+        <sc-for list="{{ memoSections }}" as="m" hint-placeholder-count="5">
+          <div style="border-bottom:1px solid var(--line)">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;cursor:pointer" style-hover="background:var(--panel2)" onClick="{{ m.onToggle }}">
+              <span style="font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx);font-weight:600">{{ m.title }}</span>
+              <span style="font-family:var(--mono);font-size:14px;color:{{ m.accent }};font-weight:700">{{ m.sign }}</span>
+            </div>
+            <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:2px 16px 14px 15px;margin-left:12px;font-size:12.5px;line-height:1.58;color:var(--tx);white-space:pre-line;border-left:2px solid {{ m.accent }};animation:rise .2s">{{ m.body }}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ============================ REPORT ============================ -->
+<sc-if value="{{ scrReport }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:960px;margin:0 auto;padding:34px 26px 90px;width:100%">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:24px">
+    <div>
+      <div style="font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)">IC verdict · {{ report.meta }}</div>
+      <h1 style="font-family:var(--disp);font-size:clamp(30px,4.4vw,46px);font-weight:700;margin-top:8px">{{ deal.name }} — your call</h1>
+      <div style="font-size:15px;color:var(--muted);margin-top:8px;font-style:italic;max-width:58ch">“{{ report.roomLine }}”</div>
+    </div>
+    <div style="text-align:right">
+      <div><span style="font-family:var(--disp);font-size:66px;font-weight:700;line-height:1">{{ report.total }}</span><span style="font-family:var(--mono);font-size:15px;color:var(--faint)"> / 50</span></div>
+      <div style="{{ report.verdictStyle }}">{{ report.verdict }}</div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:14px">How your case scored</div>
+    <sc-for list="{{ report.scoreRows }}" as="s" hint-placeholder-count="5">
+      <div style="display:grid;grid-template-columns:180px minmax(0,1fr) 48px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
+        <span style="font-size:14px">{{ s.label }}</span>
+        <div style="height:11px;background:var(--panel2);border-radius:5px;overflow:hidden"><div style="height:100%;border-radius:5px;transform-origin:left;animation:barin .5s ease-out;width:{{ s.pct }}%;background:{{ s.color }}"></div></div>
+        <span style="font-family:var(--mono);font-size:13.5px;font-weight:700;text-align:right">{{ s.val }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:30px">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:14px">How the committee voted</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+      <sc-for list="{{ committee }}" as="m" hint-placeholder-count="4">
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0 auto 0 0;width:3px;background:{{ m.color }}"></div>
+          <pre style="font-size:12px;line-height:1.13;color:{{ m.color }};white-space:pre;flex-shrink:0">{{ m.face }}</pre>
+          <div><div style="font-family:var(--disp);font-size:16px;font-weight:700">{{ m.name }}</div><div style="font-family:var(--mono);font-size:8.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin:3px 0 8px">{{ m.title }}</div><span style="{{ m.voteStyle }}">{{ m.voteLabel }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:30px">
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--op);margin-bottom:11px">Held up</div>
+      <sc-for list="{{ report.strengths }}" as="x" hint-placeholder-count="3">
+        <div style="font-size:14px;line-height:1.5;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--op);font-family:var(--mono)">+ </span>{{ x }}</div>
+      </sc-for>
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sk);margin-bottom:11px">Exposed</div>
+      <sc-for list="{{ report.gaps }}" as="x" hint-placeholder-count="3">
+        <div style="font-size:14px;line-height:1.5;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--sk);font-family:var(--mono)">− </span>{{ x }}</div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:34px;flex-wrap:wrap">
+    <button style="background:var(--acc);color:#FFFFFF;border:none;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:700;font-family:var(--sans);cursor:pointer" style-hover="opacity:.9" onClick="{{ runAgain }}">Run it again</button>
+    <button style="background:transparent;color:var(--tx);border:1px solid var(--line2);padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer" onClick="{{ setTranscript2 }}">Read the transcript</button>
+    <button style="background:transparent;color:var(--tx);border:1px solid var(--line);padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer" style-hover="border-color:var(--acc);color:var(--acc)" onClick="{{ copyBrief }}">{{ copyLabel }}</button>
+    <button style="background:transparent;color:var(--tx);border:1px solid var(--line);padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer" style-hover="border-color:var(--acc);color:var(--acc)" onClick="{{ downloadBrief }}">⇩ Download .md</button>
+    <button style="background:transparent;color:var(--tx);border:1px solid var(--line);padding:12px 22px;border-radius:9px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer" onClick="{{ backLanding }}">Evaluate another deal</button>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;difficulty&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Fair&quot;,&quot;Brutal&quot;],&quot;default&quot;:&quot;Fair&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Committee&quot;,&quot;label&quot;:&quot;Committee intensity&quot;},&quot;ttsDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Committee&quot;,&quot;label&quot;:&quot;Voices on by default&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#5B4BE0&quot;,&quot;options&quot;:[&quot;#5B4BE0&quot;,&quot;#E23B2C&quot;,&quot;#0E9E6E&quot;,&quot;#C67A0E&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;,&quot;label&quot;:&quot;Accent&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.MEMBERS=[
+      { id:'skeptic', name:'The Skeptic', title:'Market Partner', color:'var(--sk)', hair:'▚▚▚▚▚▚▚',
+        bio:'Ex public-markets short-seller. Twelve years pricing overhyped categories. Assumes the market is smaller and the competition faster than the deck says — until shown otherwise.',
+        evaluates:['Is the market real, large and winnable?','Who is the buyer, and why now?','Substitution and incumbent risk'],
+        scores:'Conviction & Thesis', activities:['challenging the thesis','stress-testing the TAM','scanning the competitive set','pricing substitution risk'],
+        keywords:['tam','market','competitor','competition','incumbent','substitut','moat','why now','pricing','demand','category'],
+        voice:{pitch:1.12,rate:1.02,gender:'female'},
+        persona:'The Skeptic — Market Partner (ex public-markets short-seller). Attacks market thesis, TAM, competition, incumbents, substitution risk, why-now timing. Cites real comparables. Concedes a clean, evidenced answer.',
+        placeholder:'Reviewing the memo · sizing the market.' },
+      { id:'operator', name:'The Operator', title:'Operating Partner', color:'var(--op)', hair:'▓▓▓▓▓▓▓',
+        bio:'Built and exited two companies, then ran ops at scale. Lives in the numbers. Treats every qualitative claim as a rounding error until it is attached to a figure with a source.',
+        evaluates:['Unit economics and gross margin','Burn, runway and the hiring plan','Ship velocity and execution risk'],
+        scores:'Data Density', activities:['interrogating the unit economics','tracing the burn','probing the hiring plan','checking gross margin'],
+        keywords:['burn','runway','hire','hiring','headcount','margin','gross','unit econ','ship','velocity','tech debt','cost','revenue','arr','cash'],
+        voice:{pitch:0.82,rate:0.98,gender:'male'},
+        persona:'The Operator — Operating Partner (built and exited two companies). Attacks unit economics, burn, runway, hiring, gross margin, ship velocity. Demands specific numbers, dates and names; never accepts a vibe.',
+        placeholder:'Doing the math on the burn · waiting for a real figure.' },
+      { id:'regulator', name:'The Regulator', title:'Risk & Compliance Partner', color:'var(--rg)', hair:'∿∿∿∿∿∿∿',
+        bio:'Former medicines and AI regulator. Reads the deal for the failure mode a founder never mentions. Believes a compliance claim is theatre until it has a process, an owner and a headcount behind it.',
+        evaluates:['Regulatory exposure and the real moat','Legal, safety and technical risk','Cost of compliance as you scale'],
+        scores:'Risk Acknowledgment', activities:['reviewing the regulatory exposure','checking the compliance moat','naming the article numbers','testing the risk controls'],
+        keywords:['regulat','compliance','mdr','mhra','gdpr','ai act','dora','iso','certif','article','audit','vigilance','surveillance','class ii'],
+        voice:{pitch:1.2,rate:0.95,gender:'female'},
+        persona:'The Regulator — Risk & Compliance Partner (former medicines/AI regulator). Attacks the compliance moat with specific article numbers (MDR Article 83, EU AI Act Articles 9-15, DORA, GDPR, MHRA, ISO/IEC). Treats "we are compliant" as theatre until proven with named process and headcount.',
+        placeholder:'Cross-checking the claims against the article numbers.' },
+      { id:'chair', name:'The Chair', title:'Managing Partner · IC Chair', color:'var(--ch)', hair:'▔▔▔▔▔▔▔',
+        bio:'Chairs the committee. Thinks in fund construction, not single deals. Will kill a good company that is a bad allocation, and cares as much about ownership and follow-on as about the pitch.',
+        evaluates:['Fund construction and ownership','Follow-on capacity and concentration','Portfolio conflict and signaling'],
+        scores:'Thesis Alignment · Poise', activities:['weighing fund construction','checking portfolio conflict','sizing ownership and follow-on','forming a recommendation'],
+        keywords:['portfolio','conflict','cannibal','co-invest','ownership','follow-on','fund','lp','signal','concentrat','allocation','stake'],
+        voice:{pitch:0.72,rate:0.92,gender:'male'},
+        persona:'The Chair — Managing Partner and IC chair, the most institutional voice. Attacks fund construction, ownership, follow-on capacity, portfolio conflict and signaling risk. Cares about the fund, not just the deal.',
+        placeholder:'Weighing this against the rest of the portfolio.' },
+    ];
+    this.DEALS=this._buildDeals();
+    this.state={ screen:'landing', dealId:'tortus', customDeal:null, view:'card',
+      showCustom:false, cf:{name:'',sector:'',stage:'',oneLiner:''},
+      transcript:[], activeSpeaker:null, streaming:false, streamShown:'', streamFull:'', talk:false, curActivity:'',
+      input:'', turnCount:0, elapsed:0, busy:false, helping:'', open:{signal:true,why:true},
+      ttsOn:(props && props.ttsDefault!==undefined)? !!props.ttsDefault : true,
+      listening:false, voiceErr:false, report:null, tip:null, savedSession:null, copied:false };
+    this._voices=[];
+  }
+  componentDidMount(){
+    try{ const a=this.props&&this.props.accent; if(a) document.documentElement.style.setProperty('--acc',a); }catch(e){}
+    if(typeof window!=='undefined' && window.speechSynthesis){ const load=()=>{ this._voices=window.speechSynthesis.getVoices()||[]; }; load(); window.speechSynthesis.onvoiceschanged=load; }
+    const ss=this._readSession(); if(ss) this.setState({savedSession:ss});
+  }
+  componentWillUnmount(){ this._stopTimer(); clearInterval(this._tw); clearInterval(this._mt); clearTimeout(this._ct); this._cancelTTS(); }
+
+  _cur(){ if(this.state.dealId==='custom' && this.state.customDeal) return this.state.customDeal; return this.DEALS.find(d=>d.id===this.state.dealId)||this.DEALS[0]; }
+  _mem(id){ return this.MEMBERS.find(m=>m.id===id); }
+  _hard(){ return (this.props&&this.props.difficulty)==='Brutal'; }
+  _ids(){ return ['skeptic','operator','regulator','chair']; }
+  _startTimer(base){ this._stopTimer(); this._t0=Date.now()-(base||0)*1000; this._timer=setInterval(()=>this.setState({elapsed:Math.floor((Date.now()-this._t0)/1000)}),1000); }
+  _stopTimer(){ if(this._timer){ clearInterval(this._timer); this._timer=null; } }
+  _scrollTop(){ try{ if(typeof window!=='undefined') window.scrollTo(0,0); }catch(e){} }
+  _fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  _face(id,mode){ const m=this._mem(id); const eyes='•   •'; let mouth = mode==='talk1'?' ○ ' : mode==='talk2'?' ▪ ' : '───'; return ['┌───────┐','│'+((m&&m.hair)||'▚▚▚▚▚▚▚')+'│','│ '+eyes+' │','│   ╵   │','│  '+mouth+'  │','└───────┘'].join('\n'); }
+
+  // session persistence
+  _readSession(){ try{ if(typeof window==='undefined'||!window.localStorage) return null; const raw=window.localStorage.getItem('ic_session_v1'); if(!raw) return null; const j=JSON.parse(raw); if(!j||!j.dealId||!Array.isArray(j.transcript)||!j.transcript.length) return null; return j; }catch(e){ return null; } }
+  _persist(){ try{ if(typeof window==='undefined'||!window.localStorage) return; const s=this.state; if(s.screen!=='room'&&s.screen!=='report') return; if(!s.transcript||!s.transcript.length) return; const snap={ v:1, screen:s.screen, dealId:s.dealId, customDeal:s.customDeal, transcript:s.transcript, turnCount:s.turnCount, elapsed:s.elapsed, view:s.view, open:s.open, report:s.report, ts:Date.now() }; window.localStorage.setItem('ic_session_v1', JSON.stringify(snap)); }catch(e){} }
+  _clearSession(){ try{ if(typeof window!=='undefined'&&window.localStorage) window.localStorage.removeItem('ic_session_v1'); }catch(e){} }
+  resumeSession=()=>{ const ss=this.state.savedSession||this._readSession(); if(!ss) return; const lastSpk=[...ss.transcript].reverse().find(x=>x.speaker!=='user'); const tail=ss.transcript[ss.transcript.length-1]; const needAdvance= ss.screen==='room' && tail && tail.speaker==='user'; this.setState({ screen:ss.screen, dealId:ss.dealId, customDeal:ss.customDeal||null, transcript:ss.transcript, turnCount:ss.turnCount||0, elapsed:ss.elapsed||0, view:ss.view||'card', open:ss.open||{signal:true,why:true}, report:ss.report||null, activeSpeaker:lastSpk?lastSpk.speaker:null, streaming:false, busy:needAdvance, streamShown:'', input:'', helping:'', savedSession:null }, ()=>{ if(ss.screen==='room') this._startTimer(ss.elapsed||0); if(needAdvance) this._committeeTurn(ss.transcript); }); this._scrollTop(); }
+  discardSession=()=>{ this._clearSession(); this.setState({savedSession:null}); }
+
+  // chart tooltips
+  _tip=(e,title,val,sub)=>{ let x=0,y=0; try{ x=e.clientX; y=e.clientY; const w=(typeof window!=='undefined'?window.innerWidth:1200); x=Math.max(96,Math.min(w-96,x)); }catch(err){} this.setState({tip:{x,y,title,val,sub}}); }
+  _tipOff=()=>{ if(this.state.tip) this.setState({tip:null}); }
+
+  // verdict export
+  _briefMarkdown(){ const s=this.state; const r=s.report; if(!r) return ''; const deal=this._cur(); const dims=[['convictionClarity','Conviction clarity'],['riskAcknowledgment','Risk acknowledgment'],['dataDensity','Data density'],['thesisAlignment','Thesis alignment'],['poiseUnderPressure','Poise under pressure']]; const total=r.total!=null?r.total:dims.reduce((a,d)=>a+(Number(r.scores[d[0]])||0),0); const L=[]; L.push('# '+deal.name+' — IC verdict'); L.push(''); L.push('**'+total+' / 50 · '+(r.verdict||'')+'**'); L.push(''); L.push('_'+this._fmt(s.elapsed)+' · '+s.turnCount+' exchanges · analyst defense_'); L.push(''); if(r.roomLine){ L.push('> '+r.roomLine); L.push(''); } L.push('## Scores'); dims.forEach(d=>{ const v=Math.max(0,Math.min(10,Math.round(r.scores[d[0]]||0))); L.push('- '+d[1]+': '+v+'/10'); }); L.push(''); L.push('## Committee votes'); const vl={back:'Back it',conditional:'With conditions',pass:'Pass',invest:'Back it'}; this.MEMBERS.forEach(m=>{ const v=(r.votes&&r.votes[m.id])||'conditional'; L.push('- '+m.name+' ('+m.title+'): '+(vl[v]||v)); }); L.push(''); L.push('## Held up'); (r.strengths||[]).forEach(x=>L.push('- '+x)); L.push(''); L.push('## Exposed'); (r.gaps||[]).forEach(x=>L.push('- '+x)); L.push(''); L.push('## Transcript'); s.transcript.forEach(x=>{ if(x.speaker==='user'){ L.push('**You · analyst:** '+x.content); } else { const m=this._mem(x.speaker); L.push('**'+(m?m.name+' · '+m.title:x.speaker)+':** '+x.content); } L.push(''); }); return L.join('\n'); }
+  copyBrief=()=>{ const md=this._briefMarkdown(); if(!md) return; try{ if(typeof navigator!=='undefined' && navigator.clipboard){ navigator.clipboard.writeText(md).then(()=>{ this.setState({copied:true}); clearTimeout(this._ct); this._ct=setTimeout(()=>this.setState({copied:false}),2000); }).catch(()=>{}); } }catch(e){} }
+  downloadBrief=()=>{ const md=this._briefMarkdown(); if(!md) return; try{ const deal=this._cur(); const blob=new Blob([md],{type:'text/markdown'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='IC-'+String(deal.name||'deal').replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'')+'-verdict.md'; document.body.appendChild(a); a.click(); setTimeout(()=>{ try{URL.revokeObjectURL(url); a.remove();}catch(e){} },120); }catch(e){} }
+
+  // nav
+  chooseDeal(id){ this.setState({dealId:id, screen:'brief'}); this._scrollTop(); }
+  backLanding=()=>{ this._stopTimer(); this._cancelTTS(); clearInterval(this._tw); clearInterval(this._mt); this.setState({screen:'landing', report:null, streaming:false, busy:false, savedSession:this._readSession()}); this._scrollTop(); }
+  openCustom=()=>this.setState({showCustom:!this.state.showCustom});
+  cfName=(e)=>this.setState({cf:{...this.state.cf,name:e.target.value}});
+  cfSector=(e)=>this.setState({cf:{...this.state.cf,sector:e.target.value}});
+  cfStage=(e)=>this.setState({cf:{...this.state.cf,stage:e.target.value}});
+  cfOne=(e)=>this.setState({cf:{...this.state.cf,oneLiner:e.target.value}});
+  submitCustom=()=>{ const c=this.state.cf; const name=(c.name||'').trim()||'Your company'; const deal=this._customDeal(name,c.sector||'—',c.stage||'—',(c.oneLiner||'').trim()||'A company under evaluation.'); this.setState({customDeal:deal, dealId:'custom', screen:'brief', showCustom:false}); this._scrollTop(); }
+  enterRoom=()=>{ this._clearSession(); this.setState({ screen:'room', view:'card', transcript:[], turnCount:0, elapsed:0, activeSpeaker:null, streaming:false, streamShown:'', input:'', report:null, busy:true, helping:'', curActivity:'', savedSession:null }); this._scrollTop(); this._startTimer(); const deal=this._cur(); setTimeout(()=>{ this.setState({busy:false}); this._speakLine('skeptic', deal.opener, this._mem('skeptic').activities[0]); }, 650); }
+  runAgain=()=>this.enterRoom();
+  setCard=()=>this.setState({view:'card'});
+  setTranscript=()=>this.setState({view:'transcript'});
+  setTranscript2=()=>{ this.setState({screen:'room', view:'transcript'}); this._scrollTop(); }
+  toggle=(k)=>this.setState(s=>({open:{...s.open,[k]:!s.open[k]}}));
+
+  // input
+  onInput=(e)=>this.setState({input:e.target.value});
+  onKey=(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); this.submit(); } }
+  toggleTTS=()=>{ const n=!this.state.ttsOn; if(!n) this._cancelTTS(); this.setState({ttsOn:n}); }
+  pass=()=>{ if(this.state.busy||this.state.streaming) return; this.setState({input:'(The analyst lets the question stand and does not answer it directly.)'}, ()=>this.submit()); }
+  toggleVoice=()=>{ const SR=(typeof window!=='undefined')&&(window.SpeechRecognition||window.webkitSpeechRecognition); if(!SR){ this.setState({voiceErr:true}); return; } if(this.state.listening){ if(this._rec) this._rec.stop(); return; } const r=new SR(); r.lang='en-GB'; r.interimResults=true; r.continuous=false; this._rec=r; const base=this.state.input? this.state.input.replace(/\s+$/,'')+' ':''; r.onresult=(ev)=>{ let s=''; for(let i=0;i<ev.results.length;i++) s+=ev.results[i][0].transcript; this.setState({input:base+s}); }; r.onend=()=>this.setState({listening:false}); r.onerror=()=>this.setState({listening:false}); try{ r.start(); this.setState({listening:true, voiceErr:false}); }catch(e){ this.setState({listening:false}); } }
+
+  // model
+  async _callModel({system, messages, maxTokens=520, useSearch}){ const wantSearch = useSearch!==undefined ? useSearch : (typeof window!=='undefined' && !!window.IC_USE_SEARCH); if(typeof window!=='undefined' && window.IC_PROVIDER && typeof window.IC_PROVIDER.ask==='function') return await window.IC_PROVIDER.ask({system, messages, maxTokens, useSearch:wantSearch}); return await window.claude.complete({ model:'claude-sonnet-4-5', system, messages, max_tokens:maxTokens }); }
+  _parseJSON(t){ if(!t) return null; let s=String(t).trim().replace(/```json/gi,'').replace(/```/g,'').trim(); const a=s.indexOf('{'),b=s.lastIndexOf('}'); if(a<0||b<0) return null; try{ return JSON.parse(s.slice(a,b+1)); }catch(e){ return null; } }
+  async _askJSON(system, user, maxTokens){ for(let i=0;i<2;i++){ try{ const raw=await this._callModel({system, messages:[{role:'user',content: i? user+'\n\nReturn ONLY the JSON object — no prose, no code fences.':user}], maxTokens}); const j=this._parseJSON(raw); if(j) return j; }catch(e){} } return null; }
+  _transcriptText(t){ return t.map(x=>{ if(x.speaker==='user') return 'ANALYST: '+x.content; const m=this._mem(x.speaker); return (m?m.name+' ('+m.title+')':x.speaker)+': '+x.content; }).join('\n\n'); }
+  _lastQ(){ const t=this.state.transcript; for(let i=t.length-1;i>=0;i--){ if(t[i].speaker!=='user') return t[i].content; } return this._cur().opener; }
+  _rules(){ return 'You simulate a venture-capital INVESTMENT COMMITTEE. Four partners pressure-test an ANALYST (the user) who is recommending an investment. Reason strictly as investors evaluating a company — never as the founder. '+(this._hard()?'Be relentless: press weak or vague answers hard. ':'')+'\nPARTNERS:\n- skeptic (Market Partner): market thesis, TAM, competition, timing.\n- operator (Operating Partner): unit economics, burn, execution, hiring.\n- regulator (Risk & Compliance Partner): regulation, legal/safety/technical risk.\n- chair (Managing Partner, IC chair): fund construction, ownership, portfolio fit.\nHARD RULES:\n1. Exactly ONE partner speaks per turn.\n2. Ground every point in the memo facts provided. NEVER invent numbers, dates, funding amounts or metrics. If a figure is not in the memo, treat it as unknown and probe for it ("we don\'t have that figure — what\'s your estimate and its basis?").\n3. Tone: sharp, specific, fair. No theatrics, no insults, no flattery. One short beat plus one pointed question; partners may concede a fair point or build on each other.\n4. If the analyst dodged or passed on the previous question, the SAME partner re-asks (reask=true) or names the gap.\n5. Otherwise pick a partner who has not spoken recently, or whose domain the analyst just opened.'; }
+
+  _turnPrompts(t){ const deal=this._cur(); const system=this._rules()+'\n\nReturn ONLY a single minified JSON object, no markdown, no code fences, no text before or after:\n{"next":"skeptic|operator|regulator|chair","reask":true|false,"activity":"3-5 word gerund phrase, e.g. challenging the moat","line":"the partner\'s next question, <=55 words, in character, ends on a real question"}'; const user='MEMO (the only source of facts — do not go beyond it):\n'+deal.model+'\n\nTRANSCRIPT SO FAR:\n'+this._transcriptText(t)+'\n\nProduce the JSON for the next partner to speak.'; return {system, user}; }
+  async _committeeTurn(t){ const {system, user}=this._turnPrompts(t); const j=await this._askJSON(system, user, 460); if(j && j.next && j.line && this._mem(j.next)){ this.setState({busy:false, turnCount:this.state.turnCount+1}); this._speakLine(j.next, String(j.line).trim(), (j.activity||'').toString().trim()); } else this._fallbackTurn(t); }
+  submit=async()=>{
+    const ans=(this.state.input||'').trim(); if(!ans || this.state.busy || this.state.streaming) return;
+    const t=[...this.state.transcript, {speaker:'user', content:ans}]; this.setState({transcript:t, input:'', busy:true}, ()=>this._persist());
+    if(this.state.listening && this._rec){ try{this._rec.stop();}catch(e){} }
+    await this._committeeTurn(t);
+  }
+  _fallbackTurn(t){
+    const spoken=t.filter(x=>x.speaker!=='user').map(x=>x.speaker); const order=this._ids();
+    let next=order.find(id=>!spoken.includes(id)); if(!next){ const ans=(t[t.length-1].content||'').toLowerCase(); next=this._keyword(ans)||order[this.state.turnCount%4]; }
+    const banks={ skeptic:['That\u2019s a narrative, not a number. Who is the buyer, and what stops the incumbent giving this away free inside a year?','You\u2019re describing a product; I asked about a market. Where does pricing power come from once the category commoditises?'],
+      operator:['Walk me through the burn. On the figures in the memo, what does the next twelve months of hiring do to runway?','We don\u2019t have a margin number in the memo. What\u2019s your estimate at scale, and what is it based on?'],
+      regulator:['\u201cCompliant\u201d isn\u2019t a moat until it\u2019s a process. Who owns the reporting obligation, with what headcount, as volume grows?','Name the article. Which specific regulation gates a competitor here, and how long does replication actually take?'],
+      chair:['Set the company aside \u2014 talk fund. What ownership do we get, and can we follow on without over-concentrating?','Where does this sit against the rest of the portfolio? Is there a conflict I should worry about?'] };
+    const bank=banks[next]; const line=bank[this.state.turnCount%bank.length];
+    this.setState({busy:false, turnCount:this.state.turnCount+1}); this._speakLine(next, line, this._mem(next).activities[this.state.turnCount%4]);
+  }
+  _keyword(ans){ let best=null,bl=0; this.MEMBERS.forEach(m=>m.keywords.forEach(k=>{ if(ans.includes(k)&&k.length>bl){best=m.id;bl=k.length;} })); return best; }
+
+  // AI help
+  draftAnswer=async()=>{ if(this.state.busy||this.state.streaming||this.state.helping) return; this.setState({helping:'draft'}); const deal=this._cur(); const q=this._lastQ();
+    const system='You are a sharp VC investment analyst defending your recommendation to the committee (NOT a founder pitching). Write ONLY the answer you would give — first person, direct, evidence-led. Use ONLY facts present in the memo below and points already established in the transcript. NEVER invent numbers, dates or metrics: if a figure is not available, say so plainly and label any estimate as an assumption with its basis. Lead with the direct answer to the exact question, cite the specific memo facts, name the real risk honestly. No preamble, no quotes, max 80 words.';
+    const user='MEMO:\n'+deal.model+'\n\nTRANSCRIPT SO FAR:\n'+this._transcriptText(this.state.transcript)+'\n\nThe partner just asked: "'+q+'"\n\nWrite the strongest accurate answer to THAT question.';
+    try{ const raw=await this._callModel({system, messages:[{role:'user',content:user}], maxTokens:240}); this.setState({input:this._clean(raw), helping:''}); }catch(e){ this.setState({helping:''}); } }
+  sharpenAnswer=async()=>{ if(this.state.busy||this.state.streaming||this.state.helping) return; const cur=(this.state.input||'').trim(); if(!cur) return this.draftAnswer(); this.setState({helping:'sharpen'}); const deal=this._cur(); const q=this._lastQ();
+    const system='You are a VC investment analyst. Tighten the analyst\'s answer: keep the claims and intent, but make it more precise and evidence-led using ONLY facts from the memo and transcript. Remove or correct any figure not supported by the memo, and label estimates as assumptions. First person, no preamble, no quotes, max 80 words.';
+    const user='MEMO:\n'+deal.model+'\n\nTRANSCRIPT:\n'+this._transcriptText(this.state.transcript)+'\n\nPartner\'s question: "'+q+'"\n\nAnalyst draft: '+cur+'\n\nSharpen it.';
+    try{ const raw=await this._callModel({system, messages:[{role:'user',content:user}], maxTokens:240}); this.setState({input:this._clean(raw), helping:''}); }catch(e){ this.setState({helping:''}); } }
+  _clean(t){ return String(t||'').trim().replace(/^["'\u201c]|["'\u201d]$/g,'').trim(); }
+
+  // streaming + tts
+  _speakLine(id, text, activity){ clearInterval(this._tw); clearInterval(this._mt);
+    this.setState({activeSpeaker:id, streaming:true, streamFull:text, streamShown:'', curActivity:activity||'', talk:false});
+    this._mt=setInterval(()=>this.setState(s=>({talk:!s.talk})), 230);
+    const t0=Date.now(), cps=50;
+    this._tw=setInterval(()=>{ const n=Math.floor((Date.now()-t0)/1000*cps); if(n>=text.length){ clearInterval(this._tw); this._finishLine(id,text,activity); } else this.setState({streamShown:text.slice(0,Math.max(1,n))}); }, 40);
+  }
+  _finishLine(id, text, activity){ clearInterval(this._mt); this.setState(s=>({ streaming:false, talk:false, streamShown:text, transcript:[...s.transcript,{speaker:id,content:text,activity:activity||''}] }), ()=>this._persist()); this._tts(id,text); }
+  _cancelTTS(){ try{ if(typeof window!=='undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} }
+  _pickVoice(m){ const vs=this._voices||[]; if(!vs.length) return null; const en=vs.filter(v=>/en(-|_|$)/i.test(v.lang)); const pool=en.length?en:vs; const f=/(female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|zira|libby|sonia|amelie|aria)/i; const ma=/(male|man|daniel|alex|fred|arthur|george|rishi|david|guy|thomas|oliver)/i; let match=pool.find(v=> m.voice.gender==='female'?f.test(v.name):ma.test(v.name)); if(!match){ const idx=this.MEMBERS.indexOf(m); match=pool[idx%pool.length]; } return match||null; }
+  _tts(id, text){ if(!this.state.ttsOn) return; if(typeof window==='undefined'||!window.speechSynthesis) return; const m=this._mem(id); if(!m) return; try{ window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/[\u2014\u2013]/g,', ')); u.pitch=m.voice.pitch; u.rate=m.voice.rate; u.volume=1; const v=this._pickVoice(m); if(v) u.voice=v; window.speechSynthesis.speak(u); }catch(e){} }
+
+  // judge
+  callVote=async()=>{ if(this.state.busy||this.state.streaming) return; if(this.state.transcript.filter(x=>x.speaker==='user').length===0) return; this.setState({busy:true});
+    const deal=this._cur();
+    const system='You are the IC chair delivering the committee\'s verdict on the ANALYST\'S investment case (not the company in the abstract, and never from the founder\'s view). Score the analyst on five dimensions, each 0-10: convictionClarity, riskAcknowledgment, dataDensity, thesisAlignment, poiseUnderPressure. total = their sum (0-50). Verdict bands: >=42 "Would back the recommendation"; 35-41 "Back with conditions"; 28-34 "On the fence"; <=27 "Would pass". Base everything ONLY on the transcript and memo; never invent facts or figures. Cast each partner\'s vote ("back"|"conditional"|"pass"). Write EXACTLY 3 strengths and 3 gaps, specific and referencing the transcript. Add a one-sentence committee read.\nReturn ONLY a single minified JSON object, no markdown, no code fences:\n{"scores":{"convictionClarity":int,"riskAcknowledgment":int,"dataDensity":int,"thesisAlignment":int,"poiseUnderPressure":int},"total":int,"verdict":"...","votes":{"skeptic":"...","operator":"...","regulator":"...","chair":"..."},"strengths":["","",""],"gaps":["","",""],"roomLine":"..."}';
+    const user='MEMO:\n'+deal.model+'\n\nFULL TRANSCRIPT:\n'+this._transcriptText(this.state.transcript)+'\n\nReturn the JSON verdict.';
+    const j=await this._askJSON(system, user, 700);
+    if(j && j.scores) this._finishReport(j); else this._fallbackReport();
+  }
+  _finishReport(j){ this._stopTimer(); this._cancelTTS(); clearInterval(this._tw); clearInterval(this._mt); this.setState({busy:false, streaming:false, screen:'report', report:j}, ()=>this._persist()); this._scrollTop(); }
+  _fallbackReport(){ const n=this.state.turnCount; const base=Math.max(4,Math.min(8, 4+Math.round(n/3))); const scores={convictionClarity:base,riskAcknowledgment:base-1,dataDensity:base,thesisAlignment:base,poiseUnderPressure:base}; const total=Object.values(scores).reduce((a,b)=>a+b,0); const verdict= total>=42?'Would back the recommendation': total>=35?'Back with conditions': total>=28?'On the fence':'Would pass'; this._finishReport({ scores, total, verdict, votes:{skeptic:'conditional',operator:'conditional',regulator:'conditional',chair:'conditional'}, strengths:['Engaged every partner\u2019s line of attack directly.','Held a consistent investment thesis under pressure.','Distinguished evidenced claims from assumptions.'], gaps:['Some answers stayed qualitative where the memo offered specifics.','A few risks surfaced only after a partner raised them.','Fund-construction implications were left largely to the Chair.'], roomLine:'A credible case; the committee wants tighter evidence before conviction.' }); }
+
+  // render
+  _memberVM(m, forReport){ const s=this.state; const isActive=s.activeSpeaker===m.id; const speaking=isActive&&s.streaming;
+    const last=[...s.transcript].reverse().find(x=>x.speaker===m.id);
+    let msg,placeholder=false,isStreaming=false; if(speaking){ msg=s.streamShown; isStreaming=true; } else if(last){ msg=last.content; } else { msg=m.placeholder; placeholder=true; }
+    const faceMode = speaking? (s.talk?'talk1':'talk2') : 'idle';
+    let activityText, live=false;
+    if(speaking){ activityText=(s.curActivity||m.activities[0]); live=true; }
+    else if(isActive && last){ activityText='made the point · standing by'; }
+    else if(s.busy && !s.activeSpeaker){ activityText='reviewing the memo'; }
+    else { activityText='listening'; }
+    const activityStyle='font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;margin-top:9px;color:'+(live?m.color:'var(--faint)')+';';
+    const glow = isActive? ';--gc:'+m.color+';animation:glow 2.4s ease-in-out infinite' : '';
+    const cardStyle='background:'+(isActive?'color-mix(in srgb, '+m.color+' 9%, var(--panel))':'var(--panel)')+';border:1px solid '+(isActive?m.color:'var(--line)')+';border-radius:14px;padding:16px 17px;transition:background .3s,border-color .3s;position:relative'+glow;
+    const statusLabel= speaking?'REASONING': isActive?'SPOKE': 'STANDBY';
+    const statusStyle=(speaking)?'font-family:var(--mono);font-size:9px;letter-spacing:.12em;font-weight:700;color:#FFFFFF;background:'+m.color+';padding:3px 8px;border-radius:5px;white-space:nowrap;display:flex;align-items:center;gap:5px'
+      :(isActive)?'font-family:var(--mono);font-size:9px;letter-spacing:.12em;font-weight:600;color:'+m.color+';border:1px solid '+m.color+';padding:2px 7px;border-radius:5px;white-space:nowrap'
+      :'font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--faint);white-space:nowrap';
+    const msgStyle='font-size:14px;line-height:1.56;margin-top:13px;padding-top:13px;border-top:1px solid var(--line);color:'+(placeholder?'var(--faint)':'var(--tx)')+';'+(placeholder?'font-style:italic;':'');
+    const vm={ id:m.id, name:m.name, title:m.title, color:m.color, bio:m.bio, evaluates:m.evaluates, scores:m.scores,
+      face:this._face(m.id, faceMode), cardStyle, statusLabel, statusStyle, activityText, activityStyle, live, msg, msgStyle, isStreaming };
+    if(forReport && s.report && s.report.votes){ const v=(s.report.votes[m.id]||'conditional'); const norm= v==='invest'?'back': v==='pass'?'pass': v==='back'?'back':'conditional'; const labels={back:'Votes: Back it',conditional:'Votes: With conditions',pass:'Votes: Pass'}; const cols={back:'var(--op)',conditional:'var(--rg)',pass:'var(--sk)'}; vm.voteLabel=labels[norm]; vm.voteStyle='font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.03em;padding:3px 9px;border-radius:6px;color:#FFFFFF;background:'+cols[norm]; } else { vm.voteLabel=''; vm.voteStyle=''; }
+    return vm;
+  }
+  _dealBrief(d){ const clamp=p=>Math.max(3,Math.min(100,Math.round(p))); const cols=['var(--sk)','var(--op)','var(--rg)','var(--ch)'];
+    const fundingBars=(d.funding||[]).map((f,i)=>{ const mx=Math.max.apply(null,(d.funding||[{amt:1}]).map(x=>x.amt)); return {label:f.label, valLabel:'£'+f.amt+'M', pct:clamp(f.amt/mx*100), color:i===(d.funding.length-1)?'var(--acc)':'var(--line2)', onEnter:(e)=>this._tip(e,f.label,'£'+f.amt+'M',i===(d.funding.length-1)?'Round on the table':'Capital raised')}; });
+    const ssiBars=(d.ssiBreak||[]).map((b,i)=>({label:b.k, valLabel:b.v, pct:clamp(b.v), color:cols[i%cols.length], onEnter:(e)=>this._tip(e,b.k,b.v+' / 100','Signal sub-score')}));
+    const compBars=(d.comps||[]).map(c=>{ const mx=Math.max.apply(null,(d.comps||[{v:1}]).map(x=>x.v)); return {label:c.name, valLabel:'$'+c.v+'M', pct:clamp(c.v/mx*100), color:c.self?'var(--acc)':'var(--line2)', emph:c.self?'font-weight:700;color:var(--acc)':'color:var(--tx)', onEnter:(e)=>this._tip(e,c.name,'$'+c.v+'M',c.self?'This round':'Comparable round')}; });
+    const num=(typeof d.ssi==='number'); const C=327;
+    const rb=(d.ssiBreak||[]).slice(0,4); const cx=100,cy=100,R=78; const ang=[-90,0,90,180];
+    const radarPoly=rb.map((b,i)=>{ const a=ang[i]*Math.PI/180; const r=R*(b.v/100); return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1); }).join(' ');
+    const fu=d.funding||[]; const mxa=Math.max.apply(null,fu.map(x=>x.amt).concat([1]));
+    const timeline=fu.map((f,i)=>({ label:f.label, val:'\u00a3'+f.amt+'M', left:(fu.length>1?(i/(fu.length-1))*100:50).toFixed(1), size:(16+Math.round(f.amt/mxa*32)), color:i===fu.length-1?'var(--acc)':'var(--line2)', onEnter:(e)=>this._tip(e,f.label,'\u00a3'+f.amt+'M','Round timeline') }));
+    const hasCharts=!!(d.funding&&d.funding.length);
+    const gaugeDash=num?Math.round(d.ssi/100*C):0;
+    const viz={ num, gaugeDash, gaugeC:C, gaugeArr:gaugeDash+' '+C, radarPoly, timeline };
+    return { name:d.name, tagline:d.tagline, ssi:d.ssi, ssiColor:d.ssiColor, ssiConfidence:d.ssiConfidence, pills:d.pills, tiles:d.tiles, sideRows:d.sideRows, railRows:d.railRows, roomSub:d.roomSub, readNote:d.readNote, hasCharts, noCharts:!hasCharts, fundingBars, ssiBars, compBars, viz }; }
+
+  renderVals(){ const s=this.state; const deal=this._cur(); const onReport=s.screen==='report'; const committee=this.MEMBERS.map(m=>this._memberVM(m,onReport));
+    const prioStyleFor=p=>{ const red=p&&/P0/.test(p); const nu=p==='NEW'; return 'font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:6px;color:#FFFFFF;background:'+(nu?'var(--ch)':red?'var(--sk)':'var(--faint)'); };
+    const deals=this.DEALS.map(d=>({ id:d.id, name:d.name, ssi:d.ssi, ssiColor:d.ssiColor, priority:d.priority, prioStyle:prioStyleFor(d.priority), oneLiner:d.oneLiner||d.tagline, sector:d.sector, stage:d.stage, hq:d.hq, onChoose:()=>this.chooseDeal(d.id) }));
+    const heroSeats=this.MEMBERS.map(m=>({ label:m.name.replace('The ',''), title:m.title.split(' ')[0], color:m.color, face:this._face(m.id,'idle') }));
+    const dealVM=this._dealBrief(deal);
+    const so=s.open||{};
+    const secDefs=[ {key:'why', title:'Why it\u2019s on the table', body:deal.why, accent:'var(--ch)'}, {key:'signal', title:'Recent signal', body:deal.signal, accent:'var(--sk)'}, {key:'enrich', title:'Market context', body:deal.enrich, accent:'var(--acc)'}, {key:'funding', title:'Funding & comparables', body:this._fundingText(deal), accent:'var(--op)'}, {key:'attacks', title:'Where they\u2019ll press', body:(deal.attacks||[]).map(a=>'— '+a).join('\n\n'), accent:'var(--rg)'}, {key:'kill', title:'Kill criteria', body:deal.kill, accent:'var(--faint)'} ];
+    const memoSections=secDefs.filter(d=>d.body).map(d=>({ key:d.key, title:d.title, body:d.body, accent:d.accent, open:!!so[d.key], sign:so[d.key]?'−':'+', onToggle:()=>this.toggle(d.key) }));
+    const transcriptVM=s.transcript.map(x=>{ if(x.speaker==='user') return {who:'You · analyst', whoStyle:'font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx);font-weight:700', content:x.content}; const m=this._mem(x.speaker); return {who:(m?m.name+' · '+m.title:x.speaker), whoStyle:'font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:'+(m?m.color:'var(--faint)'), content:x.content}; });
+    let report=null;
+    if(s.report){ const dims=[['convictionClarity','Conviction clarity'],['riskAcknowledgment','Risk acknowledgment'],['dataDensity','Data density'],['thesisAlignment','Thesis alignment'],['poiseUnderPressure','Poise under pressure']]; const scoreRows=dims.map(([k,label])=>{ const v=Math.max(0,Math.min(10,Math.round(s.report.scores[k]||0))); const color=v>=8?'var(--op)':v<=5?'var(--sk)':'var(--acc)'; return {label, val:v+'/10', pct:v*10, color}; }); const total=s.report.total!=null?s.report.total:Object.values(s.report.scores).reduce((a,b)=>a+(Number(b)||0),0); const vcol= total>=42?'var(--op)': total>=35?'var(--rg)': total>=28?'var(--acc)':'var(--sk)'; report={ total, verdict:s.report.verdict||'', verdictStyle:'display:inline-block;margin-top:8px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:6px;color:#FFFFFF;background:'+vcol, scoreRows, strengths:s.report.strengths||[], gaps:s.report.gaps||[], roomLine:s.report.roomLine||'', meta:this._fmt(s.elapsed)+' · '+s.turnCount+' exchanges' }; }
+    const tabBase='font-family:var(--mono);font-size:11px;padding:6px 12px;cursor:pointer;font-weight:600;';
+    const helpDisabled=s.busy||s.streaming||!!s.helping; const helpStyle='font-family:var(--mono);font-size:11px;padding:7px 11px;border-radius:8px;border:1px solid var(--line2);cursor:'+(helpDisabled?'wait':'pointer')+';color:var(--acc);background:transparent;font-weight:600;opacity:'+(helpDisabled?'.55':'1');
+    const passDis=s.busy||s.streaming; const passStyle='font-family:var(--mono);font-size:11px;padding:7px 11px;border-radius:8px;border:1px solid var(--line2);cursor:'+(passDis?'not-allowed':'pointer')+';color:var(--muted);background:transparent;font-weight:600;opacity:'+(passDis?'.5':'1');
+    const inpStyle='border:1px solid var(--line2);background:var(--bg);border-radius:9px;padding:10px 12px;font-size:13.5px;color:var(--tx);outline:none;font-family:var(--sans)';
+    const tileStyle='background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;box-shadow:0 1px 0 var(--line2);animation:rise .5s both';
+    const tileLabel='font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px';
+    const tip=s.tip; const tipShow=!!tip; const tipStyle= tip? ('position:fixed;z-index:60;left:'+tip.x+'px;top:'+tip.y+'px;transform:translate(-50%,-134%);background:var(--tx);color:#FFFFFF;padding:9px 13px;border-radius:11px;pointer-events:none;box-shadow:0 16px 40px -12px #000;animation:pop .12s;white-space:nowrap') : 'display:none';
+    const ss=s.savedSession; const hasSaved=!!ss && s.screen==='landing'; let savedLabel='', savedSub=''; if(ss){ savedLabel= ss.dealId==='custom' ? ((ss.customDeal&&ss.customDeal.name)||'Your company') : (((this.DEALS.find(d=>d.id===ss.dealId))||{}).name||'Deal'); savedSub=(ss.screen==='report'?'Verdict ready':((ss.turnCount||0)+' exchanges'))+' · '+this._fmt(ss.elapsed||0); }
+    return { scrLanding:s.screen==='landing', scrBrief:s.screen==='brief', scrRoom:s.screen==='room', scrReport:s.screen==='report',
+      deals, committee, heroSeats, deal:dealVM, memoSections, transcriptVM, report, tileStyle, tileLabel,
+      showCustom:s.showCustom, hideCustom:!s.showCustom, cf:s.cf, inpStyle, cfBtnStyle:'background:var(--acc);color:#FFFFFF;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer',
+      emptyTranscript:transcriptVM.length===0, isCard:s.view==='card', isTranscript:s.view==='transcript', thinking:s.busy && !s.streaming && s.screen==='room',
+      input:s.input, charLabel:(s.input||'').length+' chars', inputPlaceholder:'State the investment case. Cite the memo, flag assumptions, never bluff a number…',
+      turnCount:s.turnCount, nextTurnLabel:(s.turnCount+1), timerStr:this._fmt(s.elapsed),
+      ttsOn:s.ttsOn, ttsLabel:s.ttsOn?'🔊 voices':'🔇 muted', ttsBtnStyle:'font-family:var(--mono);font-size:11px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-weight:600;background:'+(s.ttsOn?'var(--panel)':'transparent')+';color:'+(s.ttsOn?'var(--tx)':'var(--faint)'),
+      voiceErr:s.voiceErr, listening:s.listening, micLabel:s.listening?'● listening…':'🎙 speak', micStyle:'font-family:var(--mono);font-size:11px;padding:8px 11px;border-radius:8px;cursor:pointer;font-weight:600;border:1px solid '+(s.listening?'var(--sk)':'var(--line2)')+';color:'+(s.listening?'#FFFFFF':'var(--tx)')+';background:'+(s.listening?'var(--sk)':'transparent'),
+      helpStyle, draftLabel:(s.helping==='draft')?'✎ drafting…':'✎ Draft for me', sharpenLabel:(s.helping==='sharpen')?'↑ sharpening…':'↑ Sharpen', passStyle, pass:this.pass,
+      sendStyle:'background:var(--acc);color:#FFFFFF;border:none;padding:9px 17px;border-radius:9px;font-size:13.5px;font-weight:700;font-family:var(--sans);cursor:'+((s.busy||s.streaming)?'not-allowed':'pointer')+';opacity:'+((s.busy||s.streaming)?'.5':'1'),
+      cardTabStyle:s.view==='card'?tabBase+'background:var(--tx);color:#FFFFFF;':tabBase+'background:var(--panel);color:var(--muted);', txTabStyle:s.view==='transcript'?tabBase+'background:var(--tx);color:#FFFFFF;':tabBase+'background:var(--panel);color:var(--muted);',
+      backLanding:this.backLanding, enterRoom:this.enterRoom, submit:this.submit, onInput:this.onInput, onKey:this.onKey, toggleTTS:this.toggleTTS, toggleVoice:this.toggleVoice, callVote:this.callVote, runAgain:this.runAgain, setCard:this.setCard, setTranscript:this.setTranscript, setTranscript2:this.setTranscript2, openCustom:this.openCustom, submitCustom:this.submitCustom, cfName:this.cfName, cfSector:this.cfSector, cfStage:this.cfStage, cfOne:this.cfOne, draftAnswer:this.draftAnswer, sharpenAnswer:this.sharpenAnswer,
+      tipShow, tipTitle:tip?tip.title:'', tipVal:tip?tip.val:'', tipSub:tip?tip.sub:'', tipStyle, tipOff:this._tipOff,
+      hasSaved, savedLabel, savedSub, resumeSession:this.resumeSession, discardSession:this.discardSession,
+      copyBrief:this.copyBrief, downloadBrief:this.downloadBrief, copyLabel:s.copied?'Copied ✓':'⧉ Copy brief' };
+  }
+  _fundingText(d){ const f=(d.funding||[]).map(x=>'£'+x.amt+'M · '+x.label).join('\n'); const c=(d.comps||[]).map(x=>'$'+x.v+'M · '+x.name).join('\n'); return [f&&('Rounds (from memo)\n'+f), c&&('Comparable rounds\n'+c)].filter(Boolean).join('\n\n'); }
+
+  _pill(label,kind){ const map={green:'color:var(--op);background:color-mix(in srgb,var(--op) 16%,transparent);border:1px solid color-mix(in srgb,var(--op) 30%,transparent)',amber:'color:var(--rg);background:color-mix(in srgb,var(--rg) 16%,transparent);border:1px solid color-mix(in srgb,var(--rg) 30%,transparent)',red:'color:var(--sk);background:color-mix(in srgb,var(--sk) 16%,transparent);border:1px solid color-mix(in srgb,var(--sk) 30%,transparent)',purple:'color:var(--ch);background:color-mix(in srgb,var(--ch) 16%,transparent);border:1px solid color-mix(in srgb,var(--ch) 30%,transparent)',mute:'color:var(--muted);background:var(--panel2);border:1px solid var(--line)'}; return {label, style:'font-family:var(--mono);font-size:10px;letter-spacing:.03em;font-weight:600;padding:3px 9px;border-radius:6px;'+(map[kind]||map.mute)}; }
+
+  _customDeal(name, sector, stage, oneLiner){ return { id:'custom', name, ssi:'—', ssiColor:'var(--faint)', priority:'NEW', sector, stage, hq:'—', ssiConfidence:'Unrated', oneLiner, tagline:oneLiner,
+    pills:[this._pill(sector,'mute'),this._pill(stage,'mute'),this._pill('Your evaluation','purple')],
+    tiles:[{k:'Sector',v:sector},{k:'Stage',v:stage},{k:'SSI',v:'—'},{k:'Source',v:'You'}],
+    sideRows:[{k:'Company',v:name},{k:'Sector',v:sector},{k:'Stage',v:stage},{k:'Source',v:'Manual'}],
+    railRows:[{k:'Deal',v:name.slice(0,12)},{k:'Sector',v:sector.slice(0,9)},{k:'Stage',v:stage.slice(0,9)}],
+    funding:null, ssiBreak:null, comps:null,
+    why:'Entered manually. The committee has no external data on this company — it reasons only from your one-line thesis and whatever you cite. The burden of proof is entirely on your investment case.',
+    signal:'No memo data available. Any figure the committee uses must come from you; unsupported numbers will be treated as unknown or as an assumption.',
+    enrich:'No market context on file for a manual deal. Expect the partners to ask for comparables, pricing and regulatory facts rather than assume them.',
+    kill:'Undefined. Expect the partners to probe for the failure modes you have not named.',
+    readNote:'Manual evaluation · no external data · reasons from your thesis',
+    attacks:['Who actually buys this, and why won\u2019t the incumbent do it for free?','What are the unit economics, and what is that based on?','What regulation or risk touches this, and is the moat real?','Why is this the right use of the fund\u2019s capital right now?'],
+    opener:'You\u2019ve brought '+name+' to the committee. You told us: \u201c'+oneLiner+'.\u201d We have no data on file beyond that \u2014 so start with the weakest link in the investment case: who is the buyer, and why now?',
+    model:name+' \u2014 '+oneLiner+' Sector: '+sector+'. Stage/round: '+stage+'. This is a manually-entered deal: there is NO external data, funding history, or metrics on file. Reason only from this one-liner; do NOT invent numbers. If the analyst cites a figure, you may use it; otherwise treat all figures as unknown and ask for them.' }; }
+
+  _buildDeals(){ const P=(l,k)=>this._pill(l,k); return [
+    { id:'tortus', name:'TORTUS AI', ssi:82, ssiColor:'var(--sk)', priority:'P0', sector:'Healthcare AI', stage:'Seed', hq:'London',
+      oneLiner:'AI clinical documentation writing directly into EHRs · MHRA Class IIa · 3,500+ GP practices via X-on Health',
+      tagline:'AI clinical documentation writing directly into EHR systems. NHS DTAC compliant, MHRA-registered Class IIa medical device. 3,500+ GP practices via X-on Health.',
+      ssiConfidence:'High', roomSub:'Seed · £15M post-money cap on the table',
+      pills:[P('Vertical SoR','green'),P('Healthcare AI','amber'),P('Seed · London','mute'),P('P0','red')],
+      tiles:[{k:'Stage',v:'Seed'},{k:'Round cap',v:'£15M'},{k:'Headcount',v:'24'},{k:'Catalyst',v:'91d'}],
+      sideRows:[{k:'Founded',v:'2022'},{k:'Headcount',v:'24'},{k:'HQ',v:'London'},{k:'Raised to date',v:'$8.5M'},{k:'Seed (2024)',v:'Khosla'},{k:'Falsifier',v:'Clean'},{k:'Signal tier',v:'Highest'}],
+      railRows:[{k:'SSI',v:'82'},{k:'Stage',v:'Seed'},{k:'Sector',v:'Health AI'},{k:'Catalyst',v:'91d'},{k:'Priority',v:'P0'}],
+      funding:[{label:'Seed 2024 · Khosla',amt:4.2},{label:'MHRA programme',amt:3.6},{label:'This round (cap)',amt:15}],
+      ssiBreak:[{k:'Signal quality',v:88},{k:'Moat durability',v:84},{k:'Catalyst window',v:74},{k:'Team & execution',v:80}],
+      comps:[{name:'TORTUS (this)',v:15,self:true},{name:'Health-AI Seed median',v:30},{name:'Heidi Series A (Mar 26)',v:120}],
+      why:'The investment case rests on two things: deep workflow embeddedness in the EHR (write-loop ownership, not overlay) and a regulatory moat. MHRA Class IIa registration is reported to take ~18 months and roughly €400K to replicate; once thousands of practices route through it, switching cost becomes institutional. The open question for the committee is whether that moat holds against a funded incumbent.',
+      signal:'MHRA AI Airlock Phase 2 inclusion + £3.6M programme funding (Apr 2026, per memo). GOSH multi-site rollout expanding. The ~91-day window is the runway before the next round.',
+      enrich:'From the memo: Heidi raised $19M Series A (Sequoia, Mar 2026). Nuance DAX list price $200/clinician/month. Epic announced "Smart Prompts" in its Apr 2026 roadmap — limited beta, no GA date. NHS Long Term Workforce Plan cites an £80M FY2026 AI-documentation budget. Figures beyond these are not on file.',
+      attacks:['Heidi is free for clinicians and just raised $19M. Who pays TORTUS, and why not standardise on Heidi in twelve months?','On the memo figures, what does the next year of hiring do to runway — and what margin are we underwriting?','Class IIa demands post-market surveillance (MDR Article 83). Who runs vigilance at 24 people as the install base grows?','What ownership does this £15M cap buy, and is there conflict with other healthcare-workflow bets?'],
+      kill:'Epic ships native AI documentation within ~9 months → thesis breaks. MHRA Airlock reverts to Phase 1 → moat weakens. GOSH expansion stalls → signal decays. (Directional, from the memo — not scored figures.)',
+      readNote:'memo compiled from pipeline row + market context · figures as noted',
+      opener:'You\u2019re recommending we lead TORTUS\u2019s seed at the £15M cap on the table. Set price aside for a moment \u2014 who actually pays for this, and why doesn\u2019t Heidi, now flush from a $19M Sequoia round, own this workflow inside twelve months?',
+      model:'TORTUS AI — AI clinical documentation writing directly into EHR systems. NHS DTAC compliant, MHRA-registered Class IIa medical device. ~3,500 GP practices via X-on Health. Seed, London, 24 people, SSI 82 (High), P0. Raised $8.5M to date ($4.2M Khosla, Feb 2024). Round cap being evaluated: £15M post-money. Thesis: Vertical SoR. Catalyst ~91 days. Recent signal: MHRA AI Airlock Phase 2 + £3.6M programme funding (Apr 2026); GOSH multi-site rollout. Market context: Heidi raised $19M Series A (Sequoia, Mar 2026); Nuance DAX ~$200/clinician/month; Epic "Smart Prompts" Apr 2026 roadmap, no GA; NHS £80M FY2026 AI-documentation budget. Kill criteria (directional): Epic native docs ~9mo; MHRA Airlock reverts to Phase 1; GOSH stalls. NOTE: these are the ONLY figures on file — do not invent others; treat anything else as unknown.' },
+
+    { id:'deeploy', name:'Deeploy', ssi:80, ssiColor:'var(--sk)', priority:'P0', sector:'AI Governance', stage:'Series A', hq:'Utrecht',
+      oneLiner:'AI governance & monitoring for ML in regulated industries · EU AI Act Article 9 aligned · deployed across EU banks',
+      tagline:'AI governance and monitoring for ML systems in regulated industries. EU AI Act Article 9 risk-management aligned. Deployed across EU banks and insurers.',
+      ssiConfidence:'High', roomSub:'Series A · €12M round under evaluation',
+      pills:[P('Governed Agentic','purple'),P('AI Governance','mute'),P('Series A · Utrecht','mute'),P('P0','red')],
+      tiles:[{k:'Stage',v:'Series A'},{k:'Round',v:'€12M'},{k:'Headcount',v:'38'},{k:'Catalyst',v:'120d'}],
+      sideRows:[{k:'Founded',v:'2019'},{k:'Headcount',v:'38'},{k:'HQ',v:'Utrecht'},{k:'Round',v:'€12M'},{k:'Catalyst',v:'120d'},{k:'Falsifier',v:'Clean'},{k:'Signal tier',v:'Highest'}],
+      railRows:[{k:'SSI',v:'80'},{k:'Stage',v:'Series A'},{k:'Sector',v:'AI Gov'},{k:'Catalyst',v:'120d'},{k:'Priority',v:'P0'}],
+      funding:[{label:'Seed 2021',amt:3},{label:'Series A (round)',amt:12}],
+      ssiBreak:[{k:'Signal quality',v:82},{k:'Moat durability',v:70},{k:'Catalyst window',v:86},{k:'Team & execution',v:78}],
+      comps:[{name:'Deeploy (this)',v:60,self:true},{name:'AI-gov Series A median',v:75},{name:'Credo AI',v:130}],
+      why:'The case is that Deeploy becomes the system-of-record for model risk in regulated enterprises. The wedge is the audit relationship: once monitoring, explainability and attestation live inside a bank\u2019s compliance workflow, replacement is a board-level event. EU AI Act enforcement is the forcing function; the risk is commoditisation by the cloud vendors.',
+      signal:'Closed three tier-1 EU banks in Q1 2026 (per memo). EU AI Act GPAI obligations go live August 2026, pulling procurement forward across financial services.',
+      enrich:'From the memo: Credo AI raised $30M (2025). Hyperscalers bundle basic model-monitoring free. Big-4 consultancies are building AI-Act attestation practices. Pricing and win-rate figures are not on file.',
+      attacks:['AI governance is crowded — Credo, Holistic, hyperscaler tooling. What can a bank not get bundled free from its cloud vendor?','What\u2019s the land-and-expand economics per bank? If it isn\u2019t in the memo, what\u2019s your estimate and basis?','Which specific AI-Act articles does Deeploy satisfy that a competitor cannot, and how durable is that?','What ownership does €12M buy, and who owns the audit relationship long term — Deeploy or the Big-4?'],
+      kill:'A hyperscaler ships native AI-Act attestation → moat erodes. A Big-4 partners with a rival → distribution risk. GPAI enforcement slips a year → catalyst decays.',
+      readNote:'memo compiled from pipeline row + market context · figures as noted',
+      opener:'You\u2019ve put Deeploy forward at Series A, €12M. Before we get to ownership \u2014 what does Deeploy do that a bank can\u2019t get bundled, for free, from the cloud vendor it already pays?',
+      model:'Deeploy — AI governance and monitoring for ML systems in regulated industries. EU AI Act Article 9 aligned. Series A, Utrecht, 38 people, SSI 80 (High), P0. Round under evaluation: €12M. Thesis: Governed Agentic. Catalyst 120 days. Signal: closed 3 tier-1 EU banks Q1 2026; EU AI Act GPAI obligations live Aug 2026. Market context: Credo AI raised $30M (2025); hyperscalers bundle basic model-monitoring free; Big-4 building AI-Act attestation practices. Kill criteria (directional): hyperscaler native attestation; Big-4 partners with rival; GPAI enforcement slips. NOTE: these are the ONLY figures on file — do not invent others.' },
+
+    { id:'noteless', name:'Noteless', ssi:78, ssiColor:'var(--rg)', priority:'P0', sector:'Healthcare AI', stage:'Seed', hq:'Oslo',
+      oneLiner:'Multilingual clinical documentation · EN/NO/SV/DE · real-time speech-to-structured-notes across Nordic health systems',
+      tagline:'Multilingual clinical documentation. EN / NO / SV / DE. Real-time speech-to-structured-notes across Nordic health systems.',
+      ssiConfidence:'Medium', roomSub:'Seed · €6M round under evaluation',
+      pills:[P('Vertical SoR','green'),P('Healthcare AI','amber'),P('Seed · Oslo','mute'),P('P0','red')],
+      tiles:[{k:'Stage',v:'Seed'},{k:'Round',v:'€6M'},{k:'Headcount',v:'15'},{k:'Catalyst',v:'70d'}],
+      sideRows:[{k:'Founded',v:'2023'},{k:'Headcount',v:'15'},{k:'HQ',v:'Oslo'},{k:'Round',v:'€6M'},{k:'Catalyst',v:'70d'},{k:'Falsifier',v:'Watch'},{k:'Signal tier',v:'High'}],
+      railRows:[{k:'SSI',v:'78'},{k:'Stage',v:'Seed'},{k:'Sector',v:'Health AI'},{k:'Catalyst',v:'70d'},{k:'Priority',v:'P0'}],
+      funding:[{label:'Pre-seed 2023',amt:1.2},{label:'Seed (round)',amt:6}],
+      ssiBreak:[{k:'Signal quality',v:78},{k:'Moat durability',v:62},{k:'Catalyst window',v:82},{k:'Team & execution',v:74}],
+      comps:[{name:'Noteless (this)',v:24,self:true},{name:'Nordic Seed median',v:28},{name:'Nabla',v:180}],
+      why:'The case is that language plus Nordic procurement is a wedge the English-first incumbents under-serve, with structured output into regional EHRs (DIPS, Helseplattformen) providing stickiness. The committee\u2019s doubt is whether language is a durable moat or a feature the funded incumbents ship in a quarter.',
+      signal:'Live in 40 Norwegian municipalities (per memo). Helseplattformen integration in pilot. Nordic procurement cycles opening H2 2026.',
+      enrich:'From the memo: Nabla raised $24M. Heidi expanding into EU markets. Nordic EHR landscape consolidating around Epic and DIPS, both of which could ship native scribing. Revenue and margin figures are not on file.',
+      attacks:['Another scribe — Nabla, Heidi, Nuance. Why is language a durable moat and not a feature they ship in a quarter?','On 15 people and a €6M round, what\u2019s the per-clinician economics? If it isn\u2019t in the memo, what\u2019s your estimate?','If DIPS or Epic bundle native scribing, what regulatory or integration lock-in protects Noteless?','Nordic TAM has a ceiling — how does this return a fund rather than a nice outcome?'],
+      kill:'Heidi ships Nordic languages → wedge narrows. DIPS bundles a native scribe → distribution risk. Helseplattformen pilot stalls → signal decays.',
+      readNote:'memo compiled from pipeline row + market context · figures as noted',
+      opener:'You\u2019re recommending we back Noteless at seed, €6M. Convince the committee that multilingual is a durable wedge \u2014 and not a feature Heidi or Nabla ship in a single quarter.',
+      model:'Noteless — multilingual clinical documentation (EN/NO/SV/DE), real-time speech-to-structured-notes across Nordic health systems. Seed, Oslo, 15 people, SSI 78 (Medium), P0. Round under evaluation: €6M. Thesis: Vertical SoR. Catalyst 70 days. Signal: live in 40 Norwegian municipalities; Helseplattformen integration in pilot. Market context: Nabla raised $24M; Heidi expanding to EU; Nordic EHRs consolidating around Epic/DIPS. Kill criteria (directional): Heidi ships Nordic languages; DIPS bundles native scribe; Helseplattformen pilot stalls. Anti-thesis: language may be a feature, not a moat. NOTE: these are the ONLY figures on file — do not invent others.' },
+  ]; }
+}
+</script>
+</body>
+</html>
